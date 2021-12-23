@@ -82,6 +82,8 @@ Note that, depending on the availability of compute nodes on grand-challenge.org
 ## Implementing your own algorithm
 You can implement your own solution by editing the `predict` function in `./process.py`. Any additional imported packages should be added to `./requirements.txt`, and any additional files and folders you add should be explicitly copied in the `./Dockerfile`. See `./requirements.txt` and `./Dockerfile` for examples. To update your algorithm, you can simply [test](#testing) and [export](exporting) your new Docker container, after which you can [upload it to your Algorithm](#uploading). Once your new container is Active, you can [resubmit](#submitting) your Algorithm.
 
+Please note that your container will not have access to the internet when executing on grand-challenge.org, so all model weights must be present in your container image. You can test this locally using the `--network=none` option of `docker run`.
+
 Good luck with the STOIC2021 COVID-19 AI Challenge!  
 
 
