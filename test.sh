@@ -6,9 +6,13 @@ SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
 docker volume create stoicalgorithm-output
 
-# Run the algorithm
+# Run the algorithm, emulating Grand Challenge environment.
+# memory and memory-swap can be increased to 30g max.
+MEMORY="16g"
 docker run --rm --gpus all \
-        --memory=16g \
+        --memory=$MEMORY --memory-swap=$MEMORY \
+        --cap-drop=ALL --security-opt="no-new-privileges" \
+        --network none --shm-size=128m --pids-limit 256 \
         -v $SCRIPTPATH/test/:/input/ \
         -v stoicalgorithm-output:/output/ \
         stoicalgorithm
