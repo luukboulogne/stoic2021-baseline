@@ -1,8 +1,10 @@
 from typing import Dict
 from pathlib import Path
 import SimpleITK
-import torch
-
+from tensorflow.keras import models
+import numpy as np
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from evalutils.validators import (
     UniquePathIndicesValidator,
     UniqueImagesValidator,
@@ -10,7 +12,6 @@ from evalutils.validators import (
 
 from utils import MultiClassAlgorithm, to_input_format, unpack_single_output, device
 from algorithm.preprocess import preprocess
-from algorithm.i3d.i3dpt import I3D
 
 
 COVID_OUTPUT_NAME = Path("probability-covid-19")
@@ -31,20 +32,17 @@ class StoicAlgorithm(MultiClassAlgorithm):
         )
 
         # load model
-        self.model = I3D(nr_outputs=2)
-        self.model = self.model.to(device)
-        self.model.load_state_dict(torch.load('./algorithm/model_covid.pth', map_location=torch.device(device)))
-        self.model = self.model.eval()
+        self.model = models.load_model('./algorithm/shallow/')
 
     def predict(self, *, input_image: SimpleITK.Image) -> Dict:
         # pre-processing
         input_image = preprocess(input_image)
-        input_image = to_input_format(input_image)
+        input_image = np.array([input_image])
 
         # run model
-        with torch.no_grad():
-            output = torch.sigmoid(self.model(input_image))
-        prob_covid, prob_severe = unpack_single_output(output)
+        predicttions = self.model.predict(input_image)
+        covid, severe = predicttions
+        prob_covid, prob_severe = covid[0].astype(float)[0], severe[0].astype(float)[0]
 
         return {
             COVID_OUTPUT_NAME: prob_covid,

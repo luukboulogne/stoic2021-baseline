@@ -10,10 +10,7 @@ import torch
 from evalutils.evalutils import Algorithm
 
 
-if torch.cuda.is_available():
-    device = 'cuda'
-else:
-    device = 'cpu'
+device = 'cpu'
 
 
 def to_input_format(input_image):
